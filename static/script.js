@@ -15,6 +15,8 @@ const th4 = document.createElement('th');
 const actionRow = document.createElement('th');
 const createContact = document.createElement('div');
 const createButton = document.createElement('button');
+const statusBar = document.createElement('div');
+const statusMessage = document.createElement('p');
 
 // Assign Properties to the created elements
 // mainContainer.className = "main-container";
@@ -26,11 +28,7 @@ let userCount = 0;
 //Assign Values to the created elements
 appName.innerText = "Contacts";
 appName.style.fontSize = '2rem';
-th1.innerText = '#';
-th2.innerText = 'First Name'
-th3.innerText = 'Last Name';
-th4.innerText = 'Email';
-actionRow.innerText = 'Action'
+
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', loadMainPage);
@@ -38,6 +36,10 @@ createButton.addEventListener('click', createContactFunction);
 
 
 // Methods
+function setStatusMessage(message){
+    statusMessage.innerText = 'Status: ' + message;
+}
+
 function loadMainPage(event){
     const tr = document.createElement('tr');
     tr.append(th1);
@@ -47,7 +49,9 @@ function loadMainPage(event){
     tr.append(actionRow);
 
     createButton.innerText = 'Create Contact';
+    setStatusMessage("Click on create contact button.");
 
+    statusBar.appendChild(statusMessage);
     thead.appendChild(tr);
     table.appendChild(thead);
     table.appendChild(tbody);
@@ -57,15 +61,18 @@ function loadMainPage(event){
     createContact.appendChild(createButton);
 
     mainContainer.appendChild(appName);
+    mainContainer.appendChild(statusBar);
     mainContainer.appendChild(tableContainer);
-    mainContainer.appendChild(createContact)
-
-    // console.log(mainContainer);
-    // fetch function call to retrieve the records from the database.
-
+    mainContainer.appendChild(createContact);
 }
 
 function createContactFunction(event){
+    th1.innerText = '#';
+    th2.innerText = 'First Name'
+    th3.innerText = 'Last Name';
+    th4.innerText = 'Email';
+    actionRow.innerText = 'Action';
+
     const number = document.createElement('div');
     const firstNameInput = document.createElement('input');
     const lastNameInput = document.createElement('input');
@@ -93,6 +100,7 @@ function createContactFunction(event){
     number.innerText = userCount;
     submitInput.innerText = 'Submit';
     cancelInput.innerText = 'Cancel';
+    setStatusMessage('Please enter User details.');
 
     actionsInput.appendChild(submitInput);
     actionsInput.appendChild(cancelInput);
@@ -115,13 +123,14 @@ function createContactFunction(event){
         firstName = firstNameInput.value;
         lastName = lastNameInput.value;
         email = emailInput.value;
+        if (!firstName){
+
+        }
         console.log(firstName, lastName, email);
     });
     cancelInput.addEventListener('click', (event) =>{
-        console.log(event);
-        const cancelButtonParentElement = cancelInput.parentElement;
+        const cancelButtonParentElement = cancelInput.parentElement.parentElement.parentElement;
         cancelButtonParentElement.remove()
     });
-
 }
 
