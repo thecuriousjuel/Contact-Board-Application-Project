@@ -124,13 +124,71 @@ function createContactFunction(event){
         lastName = lastNameInput.value;
         email = emailInput.value;
         if (!firstName){
+            setStatusMessage('Firstname not provided.')
+        }
+        else if(!lastName){
+            setStatusMessage('Lastname not provided.')
+        }
+        else if(!email){
+            setStatusMessage('Email not provided.')
+        }
+        else{
+            setStatusMessage(`Contact '${firstName} ${lastName}' is saved.`);
+            const submitButtonParentElement = submitInput.parentElement.parentElement.parentElement;
+            let count = 0;
+            while (submitButtonParentElement.firstChild){
+                if (!count){
+                    count = submitButtonParentElement.firstChild.innerText;
+                }
+                submitButtonParentElement.removeChild(submitButtonParentElement.firstChild);
+            }
+            const countElement = document.createElement('p');
+            const firstNameElement = document.createElement('p');
+            const lastNameElement = document.createElement('p');
+            const emailElement = document.createElement('p');
+            const actionsInput = document.createElement('div');
+            const updateInput = document.createElement('button');
+            const deleteInput = document.createElement('button');
+
+            const td1 = document.createElement('td');
+            const td2 = document.createElement('td');
+            const td3 = document.createElement('td');
+            const td4 = document.createElement('td');
+            const td5 = document.createElement('td');
+            
+            countElement.innerText = count;
+            firstNameElement.innerText = firstName;
+            lastNameElement.innerText = lastName;
+            emailElement.innerText = email;
+            updateInput.innerText = 'Update';
+            deleteInput.innerText = 'Delete'
+
+            countElement.style.textAlign = 'center';
+            firstNameElement.style.textAlign = 'center';
+            lastNameElement.style.textAlign = 'center';
+            emailElement.style.textAlign = 'center';
+
+            actionsInput.appendChild(updateInput);
+            actionsInput.appendChild(deleteInput);
+
+            td1.appendChild(countElement);
+            td2.appendChild(firstNameElement);
+            td3.appendChild(lastNameElement);
+            td4.appendChild(emailElement);
+            td5.appendChild(actionsInput);
+
+            submitButtonParentElement.appendChild(td1);
+            submitButtonParentElement.appendChild(td2);
+            submitButtonParentElement.appendChild(td3);
+            submitButtonParentElement.appendChild(td4);
+            submitButtonParentElement.appendChild(td5);
 
         }
         console.log(firstName, lastName, email);
     });
     cancelInput.addEventListener('click', (event) =>{
         const cancelButtonParentElement = cancelInput.parentElement.parentElement.parentElement;
-        cancelButtonParentElement.remove()
+        cancelButtonParentElement.remove();
     });
 }
 
