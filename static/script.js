@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', loadMainPage);
 
 
 // Helper Methods
+function replaceSpaceWithhyphenAndConvertToLower(value){
+    return value.toLowerCase().replace(' ', '-');
+}
+
 function buttonDivFunction(listOfButtonValues) {
     let buttonDiv = document.createElement('td');
     listOfButtonValues.forEach(value => {
@@ -73,6 +77,8 @@ function createTextBoxInsideTableRow() {
             inputElement.setAttribute('type', 'text');
         }
         inputElement.setAttribute('placeholder', tableHeading[i]);
+        const inputElementClassName = replaceSpaceWithhyphenAndConvertToLower(tableHeading[i])
+        inputElement.classList.add(inputElementClassName);
         tr.appendChild(inputElement);
         userInputDiv.appendChild(tr);
     }
@@ -145,6 +151,27 @@ function createContactFunction(event) {
     const tableBody = document.querySelector('tbody');
     const createUserInputRow = createUserInputRowFunction()
     tableBody.appendChild(createUserInputRow);
-    console.log(tableBody.outerHTML)
+
+    const submitButton = createUserInputRow.querySelector('.submit');
+    submitButton.addEventListener('click', (event) =>{
+        const firstName = createUserInputRow.querySelector('.first-name').value;
+        const lastName = createUserInputRow.querySelector('.last-name').value;
+        const email = createUserInputRow.querySelector('.email').value;
+        
+        if (!firstName){
+            setStatusMessage('Please enter First name.');
+        }
+        else if(!lastName){
+            setStatusMessage('Please enter Last name.');
+        }
+        else if(!email){
+            setStatusMessage('Please enter Email.');
+        }
+        else{
+            console.log(firstName, lastName, email);
+        }
+    });
+    
 }
+
 
