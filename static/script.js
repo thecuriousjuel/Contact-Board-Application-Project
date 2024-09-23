@@ -1,26 +1,18 @@
-// Creating Elements
-
-
-const actionRow = document.createElement('th');
-const createContact = document.createElement('div');
-const createButton = document.createElement('button');
-const statusBar = document.createElement('div');
-const statusMessage = document.createElement('p');
+const tableHeading = ['#', 'First Name', 'Last Name', 'Email', 'Action'];
 
 let userCount = 0;
 
-//Assign Values to the created elements
-
-
+const statusBarDiv = document.createElement('div');
+const statusMessage = document.createElement('p');
+statusBarDiv.appendChild(statusMessage);
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', loadMainPage);
-// createButton.addEventListener('click', createContactFunction);
 
 
-// Methods
+// Helper Methods
 function buttonDivFunction(listOfButtonValues) {
-    let buttonDiv = document.createElement('div');
+    let buttonDiv = document.createElement('td');
     listOfButtonValues.forEach(value => {
         let buttonElement = document.createElement('button');
         buttonElement.innerText = value;
@@ -41,18 +33,6 @@ function addUpdateAndDeleteButtonFunction() {
     return actionRow;
 }
 
-function createUserInputHeading() {
-    const tableHeading = ['#', 'First Name', 'Last Name', 'Email', 'Action'];
-    let tableHeadingDiv = document.createElement('div');
-
-    tableHeading.forEach(value => {
-        let tableHeadingElement = document.createElement('th');
-        tableHeadingElement.innerText = value;
-        tableHeadingDiv.appendChild(tableHeadingElement);
-    })
-    return tableHeadingDiv;
-}
-
 function createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteButton = false) {
     let actionRow;
     if (addSubmitAndCancelButton) {
@@ -68,103 +48,103 @@ function setStatusMessage(message) {
     statusMessage.innerText = 'Status: ' + message;
 }
 
-function createTextBoxInsideTableRow(numberOfTextBox = 0) {
+function createUserInputHeadingFunction() {
+    let tableHeadingDiv = document.createElement('tr');
+
+    tableHeading.forEach(value => {
+        let tableHeadingElement = document.createElement('th');
+        tableHeadingElement.innerText = value;
+        tableHeadingDiv.appendChild(tableHeadingElement);
+    })
+    return tableHeadingDiv;
+}
+
+function createTextBoxInsideTableRow() {
+    const numberOfTextBox = tableHeading.length;
     const userInputDiv = document.createElement('tr');
-    for (let i = 0; i < numberOfTextBox; i++) {
+    for (let i = 1; i < numberOfTextBox - 1; i++) {
         let tr = document.createElement('td');
         let inputElement = document.createElement('input');
-        inputElement.setAttribute('type', 'text');
+        if (tableHeading[i].toLowerCase() === 'email') {
+            inputElement.setAttribute('type', 'email');
+        }
+        else {
+            inputElement.setAttribute('type', 'text');
+        }
+        inputElement.setAttribute('placeholder', tableHeading[i]);
         tr.appendChild(inputElement);
         userInputDiv.appendChild(tr);
     }
     return userInputDiv;
 }
 
-function createMainTable(){
-    const tableContainer = document.createElement('div');
+function createUserInputRowFunction() {
+    const rowNumber = document.createElement('td');
+    rowNumber.innerText = userCount;
+
+    const userInputDiv = createTextBoxInsideTableRow();
+    userInputDiv.prepend(rowNumber);
+
+    const actionRow = createActionRow(addSubmitAndCancelButton=true);
+    userInputDiv.appendChild(actionRow);
+
+    return userInputDiv;
+
+}
+
+function createMainTable() {
+    const tableContainerDiv = document.createElement('div');
     const table = document.createElement('table');
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
-    
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    tableContainerDiv.appendChild(table);
+    return tableContainerDiv;
+
 }
 
 function loadMainPage(event) {
-    const mainContainer = document.querySelector('.main-container');
-    
-    const appName = document.createElement('div');
-    const appNameText = document.createElement('p');
-
-    appNameText.innerText = "Contacts";
-    appNameText.style.fontSize = '2rem';
-    appName.appendChild(appNameText);
-
-    createButton.innerText = 'Create Contact';
     setStatusMessage("Click on create contact button.");
 
-    statusBar.appendChild(statusMessage);
-    thead.appendChild(tr);
-    table.appendChild(thead);
-    table.appendChild(tbody);
+    const mainContainer = document.querySelector('.main-container');
 
-    tableContainer.appendChild(table);
+    const appNameDiv = document.createElement('div');
+    const appNameText = document.createElement('p');
 
-    createContact.appendChild(createButton);
+    appNameText.innerText = "Contacts List Applicarion";
+    appNameText.style.fontSize = '2rem';
+    appNameDiv.appendChild(appNameText);
 
-    mainContainer.appendChild(appName);
-    mainContainer.appendChild(statusBar);
-    mainContainer.appendChild(tableContainer);
-    mainContainer.appendChild(createContact);
+    const tableContainerDiv = createMainTable();
+
+    const createButtonDiv = document.createElement('div');
+    const createButton = document.createElement('button');
+
+    createButton.innerText = 'Create Contact';
+    createButtonDiv.appendChild(createButton);
+    createButton.addEventListener('click', createContactFunction);
+
+    mainContainer.appendChild(appNameDiv);
+    mainContainer.appendChild(statusBarDiv);
+    mainContainer.appendChild(tableContainerDiv);
+    mainContainer.appendChild(createButtonDiv);
+    // console.log(mainContainer.outerHTML);
 }
 
 function createContactFunction(event) {
-
-    actionRow.innerText = 'Action';
-
-    const number = document.createElement('div');
-    const firstNameInput = document.createElement('input');
-    const lastNameInput = document.createElement('input');
-    const emailInput = document.createElement('input');
-
-    const actionsInput = document.createElement('div');
-    const submitInput = document.createElement('button');
-    const cancelInput = document.createElement('button');
-    const tr = document.createElement('tr');
-    const td1 = document.createElement('td');
-    const td2 = document.createElement('td');
-    const td3 = document.createElement('td');
-    const td4 = document.createElement('td');
-    const td5 = document.createElement('td');
-
-    firstNameInput.setAttribute('type', 'text');
-    firstNameInput.setAttribute('placeholder', 'First Name');
-    lastNameInput.setAttribute('type', 'text');
-    lastNameInput.setAttribute('placeholder', 'Last Name');
-    emailInput.setAttribute('type', 'email');
-    emailInput.setAttribute('placeholder', 'Email');
-    cancelInput.classList.add('cancel-input');
-
-    userCount += 1;
-    number.innerText = userCount;
-    submitInput.innerText = 'Submit';
-    cancelInput.innerText = 'Cancel';
     setStatusMessage('Please enter User details.');
+    if (userCount == 0) {
+        const tableHead = document.querySelector('thead');
+        const createUserInputHeading = createUserInputHeadingFunction();
+        tableHead.appendChild(createUserInputHeading);
+    }
+    userCount += 1
 
-    actionsInput.appendChild(submitInput);
-    actionsInput.appendChild(cancelInput);
-
-    td1.appendChild(number);
-    td2.appendChild(firstNameInput);
-    td3.appendChild(lastNameInput);
-    td4.appendChild(emailInput);
-    td5.appendChild(actionsInput);
-
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-    tr.appendChild(td3);
-    tr.appendChild(td4);
-    tr.appendChild(td5);
-
-    tbody.appendChild(tr);
+    const tableBody = document.querySelector('tbody');
+    const createUserInputRow = createUserInputRowFunction()
+    tableBody.appendChild(createUserInputRow);
 
     submitInput.addEventListener('click', (event) => {
         firstName = firstNameInput.value;
