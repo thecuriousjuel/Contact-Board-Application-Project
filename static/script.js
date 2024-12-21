@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', loadMainPage);
 
 
 // Helper Methods
-function replaceSpaceWithhyphenAndConvertToLower(value){
+function replaceSpaceWithhyphenAndConvertToLower(value) {
     return value.toLowerCase().replace(' ', '-');
 }
 
@@ -92,7 +92,7 @@ function createUserInputRowFunction() {
     const userInputDiv = createTextBoxInsideTableRow();
     userInputDiv.prepend(rowNumber);
 
-    const actionRow = createActionRow(addSubmitAndCancelButton=true);
+    const actionRow = createActionRow(addSubmitAndCancelButton = true);
     userInputDiv.appendChild(actionRow);
 
     return userInputDiv;
@@ -120,7 +120,7 @@ function loadMainPage(event) {
     const appNameDiv = document.createElement('div');
     const appNameText = document.createElement('p');
 
-    appNameText.innerText = "Contacts List Applicarion";
+    appNameText.innerText = "Contacts List Application";
     appNameText.style.fontSize = '2rem';
     appNameDiv.appendChild(appNameText);
 
@@ -139,6 +139,8 @@ function loadMainPage(event) {
     mainContainer.appendChild(createButtonDiv);
 }
 
+
+// Starting Point of the application
 function createContactFunction(event) {
     setStatusMessage('Please enter User details.');
     if (userCount == 0) {
@@ -153,25 +155,25 @@ function createContactFunction(event) {
     tableBody.appendChild(createUserInputRow);
 
     const submitButton = createUserInputRow.querySelector('.submit');
-    submitButton.addEventListener('click', (event) =>{
+    submitButton.addEventListener('click', (event) => {
         const firstName = createUserInputRow.querySelector('.first-name').value;
         const lastName = createUserInputRow.querySelector('.last-name').value;
         const email = createUserInputRow.querySelector('.email').value;
-        
-        if (!firstName){
+
+        if (!firstName) {
             setStatusMessage('Please enter First name.');
         }
-        else if(!lastName){
+        else if (!lastName) {
             setStatusMessage('Please enter Last name.');
         }
-        else if(!email){
+        else if (!email) {
             setStatusMessage('Please enter Email.');
         }
-        else{
+        else {
             console.log(firstName, lastName, email);
         }
     });
-    
+
 }
 
 
