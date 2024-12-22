@@ -74,6 +74,15 @@ function createUserInputHeadingFunction() {
     return tableHeadingDiv;
 }
 
+// Function to validate email format
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (regex.test(email)) {
+        return true;
+    } 
+    return false;
+}
+
 // This function will create the text box inside the table row
 function createTextBoxInsideTableRow() {
     const numberOfTextBox = tableHeading.length;
@@ -160,7 +169,9 @@ function fetchFromURL(url, request) {
     return fetch(url, request)
         .then(response => response.json())
         .then(data => {
-            return data;
+            const response = data['response']['response']; 
+            console.log(response); 
+            setStatusMessage(response)
         })
         .catch(error => {
             setStatusMessage('Some error has occured!')
@@ -184,33 +195,46 @@ function createContactFunction(event) {
 
     const submitButton = createUserInputRow.querySelector('.submit');
     submitButton.addEventListener('click', (event) => {
-        const firstName = createUserInputRow.querySelector('.first-name').value;
-        const lastName = createUserInputRow.querySelector('.last-name').value;
-        const email = createUserInputRow.querySelector('.email').value;
-
-        if (!firstName) {
+        const firstName = createUserInputRow.querySelector('.first-name');
+        const lastName = createUserInputRow.querySelector('.last-name');
+        const email = createUserInputRow.querySelector('.email');
+        if (!firstName.value) {
             setStatusMessage('Please enter First name.');
+            firstName.classList.add('invalid');
         }
-        else if (!lastName) {
+        else if (!lastName.value) {
             setStatusMessage('Please enter Last name.');
+            lastName.classList.add('invalid');
+            firstName.classList.remove('invalid');
         }
-        else if (!email) {
+        else if (!email.value) {
             setStatusMessage('Please enter Email.');
+            email.classList.add('invalid');
+            firstName.classList.remove('invalid');
+            lastName.classList.remove('invalid');
+        }
+        else if (!validateEmail(email.value)){
+            setStatusMessage('Please enter a valid email.');
+            email.classList.add('invalid');
+            firstName.classList.remove('invalid');
+            lastName.classList.remove('invalid');
         }
         else {
-            // console.log(firstName, lastName, email);
-            const response = fetchFromURL('/create', {
+            firstName.classList.remove('invalid');
+            lastName.classList.remove('invalid');
+            email.classList.remove('invalid');
+
+            fetchFromURL('/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    email: email.value
                 })
             });
-            console.log(response);
         }
 
         // Submit the request to the server

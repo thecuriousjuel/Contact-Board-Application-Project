@@ -56,7 +56,7 @@ def create_user(first_name, last_name, email):
 
 def fetch_all_users():
     # Connect to the SQLite database
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
 
     try:
@@ -81,51 +81,48 @@ def fetch_all_users():
 
 
 def update_user(email, first_name=None, last_name=None):
-    # Connect to the SQLite database
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
     try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database=DATABASE)
+        cursor = conn.cursor()
+
         # Update the user details in the users table based on the email
-        if first_name:
+        if first_name and last_name:
+            cursor.execute('''
+                UPDATE users
+                SET first_name = ?, last_name = ?
+                WHERE email = ?
+            ''', (first_name, last_name, email))
+        elif first_name:
             cursor.execute('''
                 UPDATE users
                 SET first_name = ?
                 WHERE email = ?
             ''', (first_name, email))
-
-        if last_name:
+        elif last_name:
             cursor.execute('''
                 UPDATE users
                 SET last_name = ?
                 WHERE email = ?
             ''', (last_name, email))
-
-        if first_name and last_name:
-            cursor.execute('''
-                UPDATE users
-                SET first_name = ?
-                SET last_name = ?
-                WHERE email = ?
-            ''', (first_name, last_name, email))
     except Exception as e:
         return {
             'status': 500,
             'response': f'An error occurred: {str(e)}'
-            }
+        }
     finally:
         # Commit the transaction and close the connection
         conn.commit()
         conn.close()
+
     return {
         'status': 200,
         'response': 'User updated successfully!'
     }
 
-
 def delete_user(email):
     # Connect to the SQLite database
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
 
     try:
