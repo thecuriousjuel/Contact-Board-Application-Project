@@ -11,9 +11,12 @@ def main():
 
 
 @app.route('/users', methods=['GET'])
-def users():
+def get_users():
     output = fetch_all_users()
-    return {'response': output}, output['status']
+    users = output['data']
+    list_of_lists = [list(user) for user in users]
+    print(list_of_lists)
+    return {'response': list_of_lists}, output['status']
 
 @app.route('/create', methods=['POST'])
 def create():

@@ -76,7 +76,8 @@ def fetch_all_users():
 
     return {
         'status': 200,
-        'response': users
+        'response': 'Loading all users!',
+        'data': users
     }
 
 

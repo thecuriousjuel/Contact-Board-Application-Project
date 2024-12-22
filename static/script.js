@@ -148,6 +148,16 @@ function loadMainPage(event) {
     appNameDiv.appendChild(appNameText);
 
     // The user table is created here
+    const userList = fetchFromURL('/users', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    userList.then(data => {
+        console.log(`data=${data}`)
+    });
+
     const tableContainerDiv = createMainTable();
 
     // The create contact button is created here
@@ -169,9 +179,8 @@ function fetchFromURL(url, request) {
     return fetch(url, request)
         .then(response => response.json())
         .then(data => {
-            const response = data['response']['response']; 
-            console.log(response); 
-            setStatusMessage(response)
+            console.log(`data['response']=${data['data']}`);
+            return data['response']
         })
         .catch(error => {
             setStatusMessage('Some error has occured!')
@@ -224,7 +233,7 @@ function createContactFunction(event) {
             lastName.classList.remove('invalid');
             email.classList.remove('invalid');
 
-            fetchFromURL('/create', {
+            const response = fetchFromURL('/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -234,6 +243,11 @@ function createContactFunction(event) {
                     lastName: lastName.value,
                     email: email.value
                 })
+            })
+            
+            response.then(data => {
+                console.log(data);
+                setStatusMessage(data);
             });
         }
 
