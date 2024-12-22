@@ -156,6 +156,16 @@ function loadMainPage(event) {
     mainContainer.appendChild(createButtonDiv);
 }
 
+function fetchFromURL(url, request) {
+    return fetch(url, request)
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch(error => {
+            setStatusMessage('Some error has occured!')
+        });
+}
 
 // This function handles the user input row creation, validation and submission
 function createContactFunction(event) {
@@ -188,8 +198,24 @@ function createContactFunction(event) {
             setStatusMessage('Please enter Email.');
         }
         else {
-            console.log(firstName, lastName, email);
+            // console.log(firstName, lastName, email);
+            const response = fetchFromURL('/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email
+                })
+            });
+            console.log(response);
         }
+
+        // Submit the request to the server
+        // Remove the text fields and add the user details to the table
+        // Change the button to update and delete
     });
 
 }
