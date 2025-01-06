@@ -27,7 +27,7 @@ function buttonDivFunction(listOfButtonValues) {
     listOfButtonValues.forEach(value => {
         let buttonElement = document.createElement('button');
         buttonElement.innerText = value;
-        buttonElement.classList.add(value.toLowerCase());
+        buttonElement.classList.add(replaceSpaceWithhyphenAndConvertToLower(value));
         buttonDiv.append(buttonElement)
     });
     return buttonDiv;
@@ -124,7 +124,7 @@ function createUserInputRowFunction() {
 
 function displayUsersInsideTableRow(userList) {
     const userTableBody = document.querySelector('tbody');
-    for (let i = userList.length - 1; i >= 0; i-- ) {
+    for (let i = userList.length - 1; i >= 0; i--) {
         const userRow = document.createElement('tr');
 
         const rowNumber = document.createElement('td');
@@ -146,7 +146,6 @@ function displayUsersInsideTableRow(userList) {
     }
 }
 
-
 // Creating the empty table containing the users and the user input
 function createMainTable() {
     const tableContainerDiv = document.createElement('div');
@@ -161,15 +160,10 @@ function createMainTable() {
 
 }
 
-async function fetchFromURL(url, request, message) {
-    try {
-        const response = await fetch(url, request);
-        const data = await response.json();
-        return data.response
-    }
-    catch (error) {
-        setStatusMessage(`Some error has occured while ${message}!`)
-    }
+async function fetchFromURL(url, request) {
+    const response = await fetch(url, request);
+    const data = await response.json();
+    return data.response
 }
 
 // Starting Point of the application
@@ -191,19 +185,23 @@ function loadMainPage(event) {
     const userListPromise = fetchFromURL('/users', {
         method: 'GET'
     },
-    'Fetching User details.'
-);
+        'fetching user details.'
+    );
     userListPromise.then(users => {
-        const userList = users;
-        userCount = userList.length;
+        if (!users){
+            throw new Error('No User data is retrieved.')
+        }
+        userCount = +users[users.length - 1][0];
 
         if (userCount > 0) {
             // Creating the heading of the table
             const tableHead = document.querySelector('thead');
             const createUserInputHeading = createUserInputHeadingFunction();
             tableHead.appendChild(createUserInputHeading);
-            displayUsersInsideTableRow(userList)
+            displayUsersInsideTableRow(users)
         }
+    }).catch(err => {
+        setStatusMessage(err.message)
     })
 
     // The create contact button is created here
@@ -227,7 +225,7 @@ function loadMainPage(event) {
 // This function handles the user input row creation, validation and submission
 function createContactFunction(event) {
     const createContactButtonState = document.querySelector('#create-contact')
-    if(!createContactButtonState.disabled){
+    if (!createContactButtonState.disabled) {
         createContactButtonState.disabled = true;
     }
 
@@ -286,12 +284,15 @@ function createContactFunction(event) {
                     email: email.value
                 })
             },
-            'Creating a new User'
-        )
+                'Creating a new User'
+            )
             response.then(data => {
-                setStatusMessage(data.response);
+                setTimeout(() => {
+                    location.reload()
+                    createContactButtonState.disabled = false;
+                    setStatusMessage(data.response);
+                }, 2000);
             });
-            createContactButtonState.disabled = false;
         }
 
         // Submit the request to the server

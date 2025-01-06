@@ -14,9 +14,12 @@ def main():
 @app.route('/users', methods=['GET'])
 def get_users():
     output = fetch_all_users()
-    users = output['data']
-    list_of_lists = [list(user) for user in users]
-    response_json = {'response': list_of_lists}
+    if output['status'] == 200:
+        users = output['data']
+        list_of_lists = [list(user) for user in users]
+        response_json = {'response': list_of_lists}
+    else:
+        response_json = {'response': None}
     return jsonify(response_json), output['status']
 
 @app.route('/create', methods=['POST'])
