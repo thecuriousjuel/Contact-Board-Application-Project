@@ -243,6 +243,8 @@ function createContactFunction(event) {
     tableBody.prepend(createUserInputRow);
 
     const submitButton = createUserInputRow.querySelector('.submit');
+    const cancelButton = createUserInputRow.querySelector('.cancel');
+
     submitButton.addEventListener('click', (event) => {
         const firstName = createUserInputRow.querySelector('.first-name');
         const lastName = createUserInputRow.querySelector('.last-name');
@@ -300,6 +302,11 @@ function createContactFunction(event) {
         // Change the button to update and delete
     });
 
+    cancelButton.addEventListener('click', (event)=>{
+        tableBody.removeChild(tableBody.firstChild);
+        createContactButtonState.disabled = false;
+        userCount -= 1;
+    })
 }
 
 
