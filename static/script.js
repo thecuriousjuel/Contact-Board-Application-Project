@@ -8,6 +8,8 @@ let userCount = 0;
 
 const statusBarDiv = document.createElement('div');
 const statusMessage = document.createElement('p');
+statusBarDiv.classList.add('status-bar')
+statusMessage.setAttribute('id', 'status-message')
 statusBarDiv.appendChild(statusMessage);
 
 // Event Listeners
@@ -19,7 +21,7 @@ function replaceSpaceWithhyphenAndConvertToLower(value) {
     return value.toLowerCase().replace(' ', '-');
 }
 
-// This function takes in a list of button values and creates a button element for each value
+// This function takes in a list of button values and creates a button element for each user
 function buttonDivFunction(listOfButtonValues) {
     let buttonDiv = document.createElement('td');
     listOfButtonValues.forEach(value => {
@@ -59,7 +61,7 @@ function createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteBut
 
 // This function will set the status message
 function setStatusMessage(message) {
-    statusMessage.innerText = 'Status: ' + message;
+    statusMessage.innerText = message;
 }
 
 // This function will create the heading of the table
@@ -74,12 +76,12 @@ function createUserInputHeadingFunction() {
     return tableHeadingDiv;
 }
 
-// Function to validate email format
+// This function will validate email format
 function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (regex.test(email)) {
         return true;
-    } 
+    }
     return false;
 }
 
@@ -105,7 +107,7 @@ function createTextBoxInsideTableRow() {
     return userInputDiv;
 }
 
-// This function will create the user input row
+// This function will create the user input row for editing
 function createUserInputRowFunction() {
     const rowNumber = document.createElement('td');
     rowNumber.innerText = userCount;
@@ -113,14 +115,39 @@ function createUserInputRowFunction() {
     const userInputDiv = createTextBoxInsideTableRow();
     userInputDiv.prepend(rowNumber);
     // Creating the action row
-    const actionRow = createActionRow(addSubmitAndCancelButton = true);
+    const actionRow = createActionRow(addSubmitAndCancelButton = true, addUpdateAndDeleteButton = false);
     userInputDiv.appendChild(actionRow);
 
     return userInputDiv;
 
 }
 
-// Creating the user input row
+function displayUsersInsideTableRow(userList) {
+    const userTableBody = document.querySelector('tbody');
+    for (let i = userList.length - 1; i >= 0; i-- ) {
+        const userRow = document.createElement('tr');
+
+        const rowNumber = document.createElement('td');
+        const userFirstName = document.createElement('td');
+        const userLastName = document.createElement('td');
+        const userEmail = document.createElement('td');
+
+        // Creating the action row
+        const actionRow = createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteButton = true);
+
+        rowNumber.innerText = userList[i][0];
+        userFirstName.innerText = userList[i][1];
+        userLastName.innerText = userList[i][2];
+        userEmail.innerText = userList[i][3];
+
+        userRow.append(rowNumber, userFirstName, userLastName, userEmail, actionRow)
+
+        userTableBody.appendChild(userRow)
+    }
+}
+
+
+// Creating the empty table containing the users and the user input
 function createMainTable() {
     const tableContainerDiv = document.createElement('div');
     const table = document.createElement('table');
@@ -134,6 +161,17 @@ function createMainTable() {
 
 }
 
+async function fetchFromURL(url, request, message) {
+    try {
+        const response = await fetch(url, request);
+        const data = await response.json();
+        return data.response
+    }
+    catch (error) {
+        setStatusMessage(`Some error has occured while ${message}!`)
+    }
+}
+
 // Starting Point of the application
 function loadMainPage(event) {
     setStatusMessage("Click on create contact button.");
@@ -144,51 +182,55 @@ function loadMainPage(event) {
     const appNameText = document.createElement('p');
 
     appNameText.innerText = "Contacts List Application";
-    appNameText.style.fontSize = '2rem';
+    appNameText.setAttribute('id', 'title')
     appNameDiv.appendChild(appNameText);
 
-    // The user table is created here
-    const userList = fetchFromURL('/users', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    userList.then(data => {
-        console.log(`data=${data}`)
-    });
-
+    // The empty user table is created here
     const tableContainerDiv = createMainTable();
+
+    const userListPromise = fetchFromURL('/users', {
+        method: 'GET'
+    },
+    'Fetching User details.'
+);
+    userListPromise.then(users => {
+        const userList = users;
+        userCount = userList.length;
+
+        if (userCount > 0) {
+            // Creating the heading of the table
+            const tableHead = document.querySelector('thead');
+            const createUserInputHeading = createUserInputHeadingFunction();
+            tableHead.appendChild(createUserInputHeading);
+            displayUsersInsideTableRow(userList)
+        }
+    })
 
     // The create contact button is created here
     const createButtonDiv = document.createElement('div');
     const createButton = document.createElement('button');
 
+    createButton.setAttribute('id', 'create-contact')
 
-    createButton.innerText = 'Create Contact';
+    createButton.innerText = 'Create contact';
     createButtonDiv.appendChild(createButton);
     createButton.addEventListener('click', createContactFunction);
 
     mainContainer.appendChild(appNameDiv);
     mainContainer.appendChild(statusBarDiv);
-    mainContainer.appendChild(tableContainerDiv);
     mainContainer.appendChild(createButtonDiv);
+    mainContainer.appendChild(tableContainerDiv);
 }
 
-function fetchFromURL(url, request) {
-    return fetch(url, request)
-        .then(response => response.json())
-        .then(data => {
-            console.log(`data['response']=${data['data']}`);
-            return data['response']
-        })
-        .catch(error => {
-            setStatusMessage('Some error has occured!')
-        });
-}
+
 
 // This function handles the user input row creation, validation and submission
 function createContactFunction(event) {
+    const createContactButtonState = document.querySelector('#create-contact')
+    if(!createContactButtonState.disabled){
+        createContactButtonState.disabled = true;
+    }
+
     setStatusMessage('Please enter User details.');
     if (userCount == 0) {
         // Creating the heading of the table
@@ -200,7 +242,7 @@ function createContactFunction(event) {
     // Creating the user input row
     const tableBody = document.querySelector('tbody');
     const createUserInputRow = createUserInputRowFunction()
-    tableBody.appendChild(createUserInputRow);
+    tableBody.prepend(createUserInputRow);
 
     const submitButton = createUserInputRow.querySelector('.submit');
     submitButton.addEventListener('click', (event) => {
@@ -222,7 +264,7 @@ function createContactFunction(event) {
             firstName.classList.remove('invalid');
             lastName.classList.remove('invalid');
         }
-        else if (!validateEmail(email.value)){
+        else if (!validateEmail(email.value)) {
             setStatusMessage('Please enter a valid email.');
             email.classList.add('invalid');
             firstName.classList.remove('invalid');
@@ -243,12 +285,13 @@ function createContactFunction(event) {
                     lastName: lastName.value,
                     email: email.value
                 })
-            })
-            
+            },
+            'Creating a new User'
+        )
             response.then(data => {
-                console.log(data);
-                setStatusMessage(data);
+                setStatusMessage(data.response);
             });
+            createContactButtonState.disabled = false;
         }
 
         // Submit the request to the server
