@@ -131,6 +131,9 @@ def delete_user(email):
         cursor.execute('''
             DELETE FROM users WHERE email = ?
         ''', (email,))
+        rows_deleted = cursor.rowcount
+        if rows_deleted == 0:
+            raise Exception('Record not present.')
     except Exception as e:
         return {
             'status': 500,

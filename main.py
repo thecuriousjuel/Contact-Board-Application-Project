@@ -2,7 +2,10 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import jsonify
-from operations import *
+from operations import fetch_all_users
+from operations import create_user
+from operations import update_user
+from operations import delete_user
 
 app = Flask(__name__)
 
@@ -28,6 +31,12 @@ def create():
     last_name = request.get_json().get('lastName')
     email = request.get_json().get('email')
     output = create_user(first_name, last_name, email)
+    return jsonify({'response': output}), output['status']
+
+@app.route('/delete', methods=['DELETE'])
+def delete():
+    email = request.get_json().get('email')
+    output = delete_user(email)
     return jsonify({'response': output}), output['status']
 
 

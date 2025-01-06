@@ -90,7 +90,7 @@ function createTextBoxInsideTableRow() {
     const numberOfTextBox = tableHeading.length;
     const userInputDiv = document.createElement('tr');
     for (let i = 1; i < numberOfTextBox - 1; i++) {
-        let tr = document.createElement('td');
+        let td = document.createElement('td');
         let inputElement = document.createElement('input');
         if (tableHeading[i].toLowerCase() === 'email') {
             inputElement.setAttribute('type', 'email');
@@ -101,8 +101,8 @@ function createTextBoxInsideTableRow() {
         inputElement.setAttribute('placeholder', tableHeading[i]);
         const inputElementClassName = replaceSpaceWithhyphenAndConvertToLower(tableHeading[i])
         inputElement.classList.add(inputElementClassName);
-        tr.appendChild(inputElement);
-        userInputDiv.appendChild(tr);
+        td.appendChild(inputElement);
+        userInputDiv.appendChild(td);
     }
     return userInputDiv;
 }
@@ -157,13 +157,16 @@ function createMainTable() {
     table.appendChild(tbody);
     tableContainerDiv.appendChild(table);
     return tableContainerDiv;
-
 }
 
 async function fetchFromURL(url, request) {
-    const response = await fetch(url, request);
-    const data = await response.json();
-    return data.response
+    try{
+        const response = await fetch(url, request);
+        const data = await response.json();
+        return data.response
+    }catch(err){
+        console.log('fetchFromURL: ', err)
+    }
 }
 
 // Starting Point of the application
@@ -188,8 +191,10 @@ function loadMainPage(event) {
         'fetching user details.'
     );
     userListPromise.then(users => {
-        if (!users){
-            throw new Error('No User data is retrieved.')
+        if (users.length == 0){
+            const message = 'No User data is retrieved.'
+            setStatusMessage(message)
+            throw new Error(message)
         }
         userCount = +users[users.length - 1][0];
 
@@ -199,10 +204,46 @@ function loadMainPage(event) {
             const createUserInputHeading = createUserInputHeadingFunction();
             tableHead.appendChild(createUserInputHeading);
             displayUsersInsideTableRow(users)
+            const tableBody = document.querySelector('tbody');
+
+            tableBody.addEventListener('click', (event) => {
+                if(event.target.tagName === 'BUTTON'){
+                    const button = event.target;
+                    const row = button.closest('tr');
+                    
+                    const userEmail = row.cells[3].textContent;
+                    const response = fetchFromURL('/delete', {
+                        method: "DELETE",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: userEmail
+                        })
+                    });
+                    response.then(res => {
+                        setStatusMessage(res.response)
+                        setTimeout(() => {
+                            location.reload()
+                        }, 2000);
+                    })
+                }
+            })
+            // updateButton.addEventListener('click', (event) => {
+            //     const currentUserRow = updateButton.parentElement;
+            //     console.log(currentUserRow)
+            // });
         }
     }).catch(err => {
-        setStatusMessage(err.message)
+        console.log(err.message)
     })
+
+
+
+    // updateButton.addEventListener('click', (event) => {
+    //     // const parentRow = updateButton.parentElement()
+    //     console.log('working!')
+    // });
 
     // The create contact button is created here
     const createButtonDiv = document.createElement('div');
@@ -218,6 +259,7 @@ function loadMainPage(event) {
     mainContainer.appendChild(statusBarDiv);
     mainContainer.appendChild(createButtonDiv);
     mainContainer.appendChild(tableContainerDiv);
+
 }
 
 
@@ -244,7 +286,7 @@ function createContactFunction(event) {
 
     const submitButton = createUserInputRow.querySelector('.submit');
     const cancelButton = createUserInputRow.querySelector('.cancel');
-
+    
     submitButton.addEventListener('click', (event) => {
         const firstName = createUserInputRow.querySelector('.first-name');
         const lastName = createUserInputRow.querySelector('.last-name');
@@ -306,7 +348,9 @@ function createContactFunction(event) {
         tableBody.removeChild(tableBody.firstChild);
         createContactButtonState.disabled = false;
         userCount -= 1;
-    })
+    });
+
+    
 }
 
 
