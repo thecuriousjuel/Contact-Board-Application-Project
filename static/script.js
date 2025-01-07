@@ -222,7 +222,7 @@ function updateUser(event) {
     const userEmail = row.cells[3].textContent;
 
     const tableRowCells = createUserInputRow.cells
-    
+
     tableRowCells[0].textContent = userID;
     tableRowCells[1].firstChild.value = userFirstName
     tableRowCells[2].firstChild.value = userLastName;
@@ -233,14 +233,13 @@ function updateUser(event) {
     const submitButton = createUserInputRow.querySelector('.submit');
     const cancelButton = createUserInputRow.querySelector('.cancel');
 
-    console.log(createUserInputRow.outerHTML)
-    const url = '/update'
-    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, url));
-    cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableHead, tableBody, createContactButtonState));
+    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, '/update'));
+    cancelButton.addEventListener('click', (event) => cancelSubmission(event,
+        tableHead, tableBody, createContactButtonState, row, createUserInputRow));
 
     row.remove()
     tableBody.prepend(createUserInputRow)
-    
+
 }
 
 // Starting Point of the application
@@ -354,7 +353,7 @@ function submitUserData(event, createUserInputRow, url) {
         email.classList.remove('invalid');
 
 
-        if (url === '/create'){
+        if (url === '/create') {
             const response = fetchFromURL(url, {
                 method: 'POST',
                 headers: {
@@ -376,7 +375,7 @@ function submitUserData(event, createUserInputRow, url) {
                 }, 2000);
             });
         }
-        else if (url === '/update'){
+        else if (url === '/update') {
             const response = fetchFromURL(url, {
                 method: 'PUT',
                 headers: {
@@ -398,8 +397,6 @@ function submitUserData(event, createUserInputRow, url) {
                 }, 2000);
             });
         }
-        
-        
     }
 
     // Submit the request to the server
@@ -407,12 +404,18 @@ function submitUserData(event, createUserInputRow, url) {
     // Change the button to update and delete
 }
 
-function cancelSubmission(event, tableHead, tableBody, createContactButtonState) {
-    tableBody.removeChild(tableBody.firstChild);
+function cancelSubmission(event, tableHead, tableBody, createContactButtonState, row, createUserInputRow) {
+    if (row) {
+        createUserInputRow.remove()
+        tableBody.prepend(row)
+    }
+    else {
+        tableBody.removeChild(tableBody.firstChild);
+    }
     createContactButtonState.disabled = false;
     userCount -= 1;
 
-    if (userCount === 0){
+    if (userCount === 0) {
         tableHead.removeChild(tableHead.firstChild)
         setStatusMessage('No User data is present')
     }
@@ -444,7 +447,7 @@ function createContactFunction(event) {
     const submitButton = createUserInputRow.querySelector('.submit');
     const cancelButton = createUserInputRow.querySelector('.cancel');
 
-    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow));
+    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, '/create'));
     cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableHead, tableBody, createContactButtonState));
 
 }
