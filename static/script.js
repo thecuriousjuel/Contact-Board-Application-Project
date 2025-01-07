@@ -61,7 +61,16 @@ function createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteBut
 
 // This function will set the status message
 function setStatusMessage(message) {
-    statusMessage.innerText = message;
+    // Trim whitespace from both ends
+    let trimmed = message.trim();
+
+    // Remove all full stops
+    let noFullStops = trimmed.replace(/\./g, '');
+
+    // Capitalize the first letter
+    let capitalized = noFullStops.charAt(0).toUpperCase() + noFullStops.slice(1);
+
+    statusMessage.innerText = capitalized;
 }
 
 // This function will create the heading of the table
@@ -187,6 +196,8 @@ function deleteUser(event) {
         setTimeout(() => {
             location.reload()
         }, 2000);
+    }).catch(error => {
+        setStatusMessage('Delete error occurred.')
     })
 }
 
@@ -194,14 +205,46 @@ function deleteUser(event) {
 function updateUser(event) {
     const button = event.target;
     const row = button.closest('tr');
-    const createUserInputRow = createUserInputRowFunction()
-    console.log(createUserInputRow.outerHTML);
+    const tableBody = row.parentElement;
+
+    const createUserInputRow = createUserInputRowFunction();
+    const createContactButtonState = document.querySelector('#create-contact')
+
+    if (!createContactButtonState.disabled) {
+        createContactButtonState.disabled = true;
+    }
+
+    setStatusMessage('Please enter User details.');
+
+    const userID = row.cells[0].textContent;
+    const userFirstName = row.cells[1].textContent;
+    const userLastName = row.cells[2].textContent;
+    const userEmail = row.cells[3].textContent;
+
+    const tableRowCells = createUserInputRow.cells
+    
+    tableRowCells[0].textContent = userID;
+    tableRowCells[1].firstChild.value = userFirstName
+    tableRowCells[2].firstChild.value = userLastName;
+    tableRowCells[3].firstChild.value = userEmail;
+    tableRowCells[3].firstChild.disabled = true
+
+    const tableHead = document.querySelector('thead');
+    const submitButton = createUserInputRow.querySelector('.submit');
+    const cancelButton = createUserInputRow.querySelector('.cancel');
+
+    console.log(createUserInputRow.outerHTML)
+    const url = '/update'
+    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, url));
+    cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableHead, tableBody, createContactButtonState));
+
+    row.remove()
+    tableBody.prepend(createUserInputRow)
+    
 }
 
 // Starting Point of the application
 function loadMainPage(event) {
-    setStatusMessage("Click on create contact button.");
-
     const mainContainer = document.querySelector('.main-container');
 
     const appNameDiv = document.createElement('div');
@@ -221,13 +264,14 @@ function loadMainPage(event) {
     );
     userListPromise.then(users => {
         if (users.length == 0) {
-            const message = 'No User data is retrieved.'
+            const message = 'No User data is present'
             setStatusMessage(message)
             throw new Error(message)
         }
         userCount = +users[users.length - 1][0];
 
         if (userCount > 0) {
+            setStatusMessage("Displaying all the User data.");
             // Creating the heading of the table
             const tableHead = document.querySelector('thead');
             const createUserInputHeading = createUserInputHeadingFunction();
@@ -279,7 +323,7 @@ function loadMainPage(event) {
 
 }
 
-function submitUserData(event, createUserInputRow) {
+function submitUserData(event, createUserInputRow, url) {
     const firstName = createUserInputRow.querySelector('.first-name');
     const lastName = createUserInputRow.querySelector('.last-name');
     const email = createUserInputRow.querySelector('.email');
@@ -309,26 +353,53 @@ function submitUserData(event, createUserInputRow) {
         lastName.classList.remove('invalid');
         email.classList.remove('invalid');
 
-        const response = fetchFromURL('/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+
+        if (url === '/create'){
+            const response = fetchFromURL(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    email: email.value
+                })
             },
-            body: JSON.stringify({
-                firstName: firstName.value,
-                lastName: lastName.value,
-                email: email.value
-            })
-        },
-            'Creating a new User'
-        )
-        response.then(data => {
-            setStatusMessage(data.response);
-            setTimeout(() => {
-                location.reload()
-                // createContactButtonState.disabled = false;
-            }, 2000);
-        });
+                'Creating a new User'
+            )
+            response.then(data => {
+                setStatusMessage(data.response);
+                setTimeout(() => {
+                    location.reload()
+                    // createContactButtonState.disabled = false;
+                }, 2000);
+            });
+        }
+        else if (url === '/update'){
+            const response = fetchFromURL(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    email: email.value
+                })
+            },
+                'Updating a User'
+            )
+            response.then(data => {
+                setStatusMessage(data.response);
+                setTimeout(() => {
+                    location.reload()
+                    // createContactButtonState.disabled = false;
+                }, 2000);
+            });
+        }
+        
+        
     }
 
     // Submit the request to the server
@@ -336,10 +407,16 @@ function submitUserData(event, createUserInputRow) {
     // Change the button to update and delete
 }
 
-function cancelSubmission(event, tableBody, createContactButtonState) {
+function cancelSubmission(event, tableHead, tableBody, createContactButtonState) {
     tableBody.removeChild(tableBody.firstChild);
     createContactButtonState.disabled = false;
     userCount -= 1;
+
+    if (userCount === 0){
+        tableHead.removeChild(tableHead.firstChild)
+        setStatusMessage('No User data is present')
+    }
+    setStatusMessage('Displaying all the User Data')
 }
 
 // This function handles the user input row creation, validation and submission
@@ -350,23 +427,25 @@ function createContactFunction(event) {
     }
 
     setStatusMessage('Please enter User details.');
-    if (userCount == 0) {
+    const tableHead = document.querySelector('thead');
+    if (userCount === 0 && tableHead.childNodes.length === 0) {
         // Creating the heading of the table
-        const tableHead = document.querySelector('thead');
         const createUserInputHeading = createUserInputHeadingFunction();
         tableHead.appendChild(createUserInputHeading);
     }
     userCount += 1
     // Creating the user input row
     const tableBody = document.querySelector('tbody');
+
     const createUserInputRow = createUserInputRowFunction()
     tableBody.prepend(createUserInputRow);
+
 
     const submitButton = createUserInputRow.querySelector('.submit');
     const cancelButton = createUserInputRow.querySelector('.cancel');
 
     submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow));
-    cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableBody, createContactButtonState));
+    cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableHead, tableBody, createContactButtonState));
 
 }
 

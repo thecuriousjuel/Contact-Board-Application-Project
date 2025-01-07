@@ -39,6 +39,14 @@ def delete():
     output = delete_user(email)
     return jsonify({'response': output}), output['status']
 
+@app.route('/update', methods=['PUT'])
+def update():
+    first_name = request.get_json().get('firstName')
+    last_name = request.get_json().get('lastName')
+    email = request.get_json().get('email')
+    output = update_user(email, first_name, last_name)
+    return jsonify({'response': output}), output['status']
+
 
 if __name__ == '__main__':
     app.run(debug=True)
