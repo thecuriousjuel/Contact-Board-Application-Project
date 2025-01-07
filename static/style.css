@@ -121,10 +121,20 @@ input[disabled], textarea[disabled] {
   text-decoration: underline;
 }
 
-/* .update{
+.update{
   background-color: #0cdf28;
+}
+
+.update:focus, .update:hover{
+  background-color: #a0ffac;
+  color: #000;
 }
 
 .delete{
   background-color: #fa2d2d;
-} */
+}
+
+.delete:focus, .delete:hover{
+  background-color: #fa9c9c;
+  color: #000;
+}

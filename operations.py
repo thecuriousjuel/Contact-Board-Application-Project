@@ -121,6 +121,7 @@ def update_user(email, first_name=None, last_name=None):
         'response': 'User updated successfully!'
     }
 
+
 def delete_user(email):
     # Connect to the SQLite database
     conn = sqlite3.connect(database=DATABASE)
