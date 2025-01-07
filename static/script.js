@@ -141,7 +141,6 @@ function displayUsersInsideTableRow(userList) {
         userEmail.innerText = userList[i][3];
 
         userRow.append(rowNumber, userFirstName, userLastName, userEmail, actionRow)
-
         userTableBody.appendChild(userRow)
     }
 }
@@ -160,13 +159,43 @@ function createMainTable() {
 }
 
 async function fetchFromURL(url, request) {
-    try{
+    try {
         const response = await fetch(url, request);
         const data = await response.json();
         return data.response
-    }catch(err){
+    } catch (err) {
         console.log('fetchFromURL: ', err)
     }
+}
+
+function deleteUser(event) {
+    const button = event.target;
+    const row = button.closest('tr');
+
+    const userEmail = row.cells[3].textContent;
+    const response = fetchFromURL('/delete', {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: userEmail
+        })
+    });
+    response.then(res => {
+        setStatusMessage(res.response)
+        setTimeout(() => {
+            location.reload()
+        }, 2000);
+    })
+}
+
+
+function updateUser(event) {
+    const button = event.target;
+    const row = button.closest('tr');
+    const createUserInputRow = createUserInputRowFunction()
+    console.log(createUserInputRow.outerHTML);
 }
 
 // Starting Point of the application
@@ -191,7 +220,7 @@ function loadMainPage(event) {
         'fetching user details.'
     );
     userListPromise.then(users => {
-        if (users.length == 0){
+        if (users.length == 0) {
             const message = 'No User data is retrieved.'
             setStatusMessage(message)
             throw new Error(message)
@@ -207,28 +236,16 @@ function loadMainPage(event) {
             const tableBody = document.querySelector('tbody');
 
             tableBody.addEventListener('click', (event) => {
-                if(event.target.tagName === 'BUTTON'){
-                    const button = event.target;
-                    const row = button.closest('tr');
-                    
-                    const userEmail = row.cells[3].textContent;
-                    const response = fetchFromURL('/delete', {
-                        method: "DELETE",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            email: userEmail
-                        })
-                    });
-                    response.then(res => {
-                        setStatusMessage(res.response)
-                        setTimeout(() => {
-                            location.reload()
-                        }, 2000);
-                    })
+                if (event.target.tagName === 'BUTTON') {
+                    if (event.target.classList.contains('delete')) {
+                        deleteUser(event)
+                    }
+                    if (event.target.classList.contains('update')) {
+                        updateUser(event)
+                    }
                 }
             })
+
             // updateButton.addEventListener('click', (event) => {
             //     const currentUserRow = updateButton.parentElement;
             //     console.log(currentUserRow)
@@ -262,7 +279,68 @@ function loadMainPage(event) {
 
 }
 
+function submitUserData(event, createUserInputRow) {
+    const firstName = createUserInputRow.querySelector('.first-name');
+    const lastName = createUserInputRow.querySelector('.last-name');
+    const email = createUserInputRow.querySelector('.email');
+    if (!firstName.value) {
+        setStatusMessage('Please enter First name.');
+        firstName.classList.add('invalid');
+    }
+    else if (!lastName.value) {
+        setStatusMessage('Please enter Last name.');
+        lastName.classList.add('invalid');
+        firstName.classList.remove('invalid');
+    }
+    else if (!email.value) {
+        setStatusMessage('Please enter Email.');
+        email.classList.add('invalid');
+        firstName.classList.remove('invalid');
+        lastName.classList.remove('invalid');
+    }
+    else if (!validateEmail(email.value)) {
+        setStatusMessage('Please enter a valid email.');
+        email.classList.add('invalid');
+        firstName.classList.remove('invalid');
+        lastName.classList.remove('invalid');
+    }
+    else {
+        firstName.classList.remove('invalid');
+        lastName.classList.remove('invalid');
+        email.classList.remove('invalid');
 
+        const response = fetchFromURL('/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                firstName: firstName.value,
+                lastName: lastName.value,
+                email: email.value
+            })
+        },
+            'Creating a new User'
+        )
+        response.then(data => {
+            setStatusMessage(data.response);
+            setTimeout(() => {
+                location.reload()
+                // createContactButtonState.disabled = false;
+            }, 2000);
+        });
+    }
+
+    // Submit the request to the server
+    // Remove the text fields and add the user details to the table
+    // Change the button to update and delete
+}
+
+function cancelSubmission(event, tableBody, createContactButtonState) {
+    tableBody.removeChild(tableBody.firstChild);
+    createContactButtonState.disabled = false;
+    userCount -= 1;
+}
 
 // This function handles the user input row creation, validation and submission
 function createContactFunction(event) {
@@ -286,71 +364,10 @@ function createContactFunction(event) {
 
     const submitButton = createUserInputRow.querySelector('.submit');
     const cancelButton = createUserInputRow.querySelector('.cancel');
-    
-    submitButton.addEventListener('click', (event) => {
-        const firstName = createUserInputRow.querySelector('.first-name');
-        const lastName = createUserInputRow.querySelector('.last-name');
-        const email = createUserInputRow.querySelector('.email');
-        if (!firstName.value) {
-            setStatusMessage('Please enter First name.');
-            firstName.classList.add('invalid');
-        }
-        else if (!lastName.value) {
-            setStatusMessage('Please enter Last name.');
-            lastName.classList.add('invalid');
-            firstName.classList.remove('invalid');
-        }
-        else if (!email.value) {
-            setStatusMessage('Please enter Email.');
-            email.classList.add('invalid');
-            firstName.classList.remove('invalid');
-            lastName.classList.remove('invalid');
-        }
-        else if (!validateEmail(email.value)) {
-            setStatusMessage('Please enter a valid email.');
-            email.classList.add('invalid');
-            firstName.classList.remove('invalid');
-            lastName.classList.remove('invalid');
-        }
-        else {
-            firstName.classList.remove('invalid');
-            lastName.classList.remove('invalid');
-            email.classList.remove('invalid');
 
-            const response = fetchFromURL('/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    email: email.value
-                })
-            },
-                'Creating a new User'
-            )
-            response.then(data => {
-                setTimeout(() => {
-                    location.reload()
-                    createContactButtonState.disabled = false;
-                    setStatusMessage(data.response);
-                }, 2000);
-            });
-        }
+    submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow));
+    cancelButton.addEventListener('click', (event) => cancelSubmission(event, tableBody, createContactButtonState));
 
-        // Submit the request to the server
-        // Remove the text fields and add the user details to the table
-        // Change the button to update and delete
-    });
-
-    cancelButton.addEventListener('click', (event)=>{
-        tableBody.removeChild(tableBody.firstChild);
-        createContactButtonState.disabled = false;
-        userCount -= 1;
-    });
-
-    
 }
 
 

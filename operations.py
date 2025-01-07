@@ -27,25 +27,25 @@ def create_user(first_name, last_name, email):
             INSERT INTO users (first_name, last_name, email)
             VALUES (?, ?, ?)
         ''', (first_name, last_name, email))
+
+        # Commit the transaction
+        conn.commit()
     except sqlite3.IntegrityError as e:
         if 'UNIQUE constraint failed' in str(e):
             return {
                 'status': 409,
                 'response': 'A user with this email already exists.'
             }
-        else:
-            return {
-                'status': 500,
-                'response': f'An integrity error occurred: {str(e)}'
-            }
+        return {
+            'status': 500,
+            'response': f'An integrity error occurred: {str(e)}'
+        }
     except Exception as e:
         return {
             'status': 500,
             'response': f'An error occurred: {str(e)}'
         }
     finally:
-        # Commit the transaction and close the connection
-        conn.commit()
         conn.close()
 
     return {
