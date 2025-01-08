@@ -34,23 +34,25 @@ def create_user(first_name, last_name, email):
         if 'UNIQUE constraint failed' in str(e):
             return {
                 'status': 409,
-                'response': 'A user with this email already exists.'
+                'response': f"A user with '{email}' already exists."
             }
+        print(f'An integrity error occurred while creating the user: {str(e)}')
         return {
             'status': 500,
-            'response': f'An integrity error occurred: {str(e)}'
+            'response': f"An error occured while creating the user '{email}'"
         }
     except Exception as e:
+        print(f"An error occurred while creating the user '{email}': {str(e)}")
         return {
             'status': 500,
-            'response': f'An error occurred: {str(e)}'
+            'response': f"An error occured while creating the user '{email}'"
         }
     finally:
         conn.close()
 
     return {
         'status': 201,
-        'response': 'User created successfully!'
+        'response': f"User '{email}' created successfully!"
     }
 
 
@@ -66,9 +68,10 @@ def fetch_all_users():
         # Fetch all records
         users = cursor.fetchall()
     except Exception as e:
+        print(f'An error occurred while fetching the User details: {str(e)}')
         return {
             'status': 500,
-            'response': f'An error occurred: {str(e)}'
+            'response': 'An error occurred while fetching the User details',
         }
     finally:
         # Close the connection
@@ -76,8 +79,7 @@ def fetch_all_users():
 
     return {
         'status': 200,
-        'response': 'Loading all users!',
-        'data': users
+        'response': [list(user) for user in users]
     }
 
 
@@ -107,9 +109,10 @@ def update_user(email, first_name=None, last_name=None):
                 WHERE email = ?
             ''', (last_name, email))
     except Exception as e:
+        print(f"An error occurred while updating the user '{email}': {str(e)}")
         return {
             'status': 500,
-            'response': f'An error occurred: {str(e)}'
+            'response': f"An error occurred while updating the user '{email}'"
         }
     finally:
         # Commit the transaction and close the connection
@@ -118,7 +121,7 @@ def update_user(email, first_name=None, last_name=None):
 
     return {
         'status': 200,
-        'response': 'User updated successfully!'
+        'response': f"User '{email}' updated successfully!"
     }
 
 
@@ -136,17 +139,18 @@ def delete_user(email):
         if rows_deleted == 0:
             raise Exception('Record not present.')
     except Exception as e:
+        print(f"An error occurred while deleting the user '{email}': {str(e)}")
         return {
             'status': 500,
-            'response':f'An error occurred: {str(e)}'
-            }
+            'response': f"An error occurred while deleting the user '{email}'"
+        }
     finally:
         # Commit the transaction and close the connection
         conn.commit()
         conn.close()
     return {
         'status': 200,
-        'response': 'User deleted successfully!'
+        'response': f"User '{email}' deleted successfully!"
     }
 
 

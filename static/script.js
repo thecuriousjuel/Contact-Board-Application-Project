@@ -65,11 +65,11 @@ function setStatusMessage(message) {
     let trimmed = message.trim();
 
     // Remove all full stops
-    let noFullStops = trimmed.replace(/\./g, '');
+    let noFullStops = trimmed.replace(/\.$/, '');
 
     // Capitalize the first letter
     let capitalized = noFullStops.charAt(0).toUpperCase() + noFullStops.slice(1);
-
+    console.log('capitalized', capitalized)
     statusMessage.innerText = capitalized;
 }
 
@@ -131,6 +131,7 @@ function createUserInputRowFunction() {
 
 }
 
+// 
 function displayUsersInsideTableRow(userList) {
     const userTableBody = document.querySelector('tbody');
     for (let i = userList.length - 1; i >= 0; i--) {
@@ -169,13 +170,13 @@ function createMainTable() {
 
 // This function calls the API endpoints and retrives the response
 async function fetchFromURL(url, request) {
-    try {
-        const response = await fetch(url, request);
-        const data = await response.json();
-        return data.response
-    } catch (err) {
-        console.log('fetchFromURL: ', err)
+    const response = await fetch(url, request);
+    const data = await response.json();
+    console.log(data)
+    if (data.status < 200 || data.status >= 400) {
+        throw new Error(data.response)
     }
+    return data.response
 }
 
 // This function deletes the user using the email address
@@ -192,14 +193,14 @@ function deleteUser(event) {
         body: JSON.stringify({
             email: userEmail
         })
-    });
+    },
+        `Deleting user '${userEmail}'`
+    );
     response.then(res => {
         setStatusMessage(res.response)
         setTimeout(() => {
             location.reload()
         }, 2000);
-    }).catch(error => {
-        setStatusMessage('Delete error occurred.')
     })
 }
 
@@ -238,76 +239,8 @@ function updateUser(event) {
     submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, '/update'));
     cancelButton.addEventListener('click', (event) => cancelSubmission(event,
         tableHead, tableBody, createContactButtonState, row, createUserInputRow));
-      
+
     tableBody.replaceChild(createUserInputRow, row);
-}
-
-// This function is the starting point of the application
-function loadMainPage(event) {
-    const mainContainer = document.querySelector('.main-container');
-
-    const appNameDiv = document.createElement('div');
-    const appNameText = document.createElement('p');
-
-    appNameText.innerText = "Contacts List Application";
-    appNameText.setAttribute('id', 'title')
-    appNameDiv.appendChild(appNameText);
-
-    // The empty user table is created here
-    const tableContainerDiv = createMainTable();
-
-    const userListPromise = fetchFromURL('/users', {
-        method: 'GET'
-    },
-        'fetching user details.'
-    );
-    userListPromise.then(users => {
-        if (users.length == 0) {
-            const message = 'No User data is present'
-            setStatusMessage(message)
-            throw new Error(message)
-        }
-        userCount = +users[users.length - 1][0];
-
-        if (userCount > 0) {
-            setStatusMessage("Displaying all the User data.");
-            // Creating the heading of the table
-            const tableHead = document.querySelector('thead');
-            const createUserInputHeading = createUserInputHeadingFunction();
-            tableHead.appendChild(createUserInputHeading);
-            displayUsersInsideTableRow(users)
-            const tableBody = document.querySelector('tbody');
-
-            tableBody.addEventListener('click', (event) => {
-                if (event.target.tagName === 'BUTTON') {
-                    if (event.target.classList.contains('delete')) {
-                        deleteUser(event)
-                    }
-                    if (event.target.classList.contains('update')) {
-                        updateUser(event)
-                    }
-                }
-            })
-        }
-    }).catch(err => {
-        console.log(err.message)
-    })
-
-    // The create contact button is created here
-    const createButtonDiv = document.createElement('div');
-    const createButton = document.createElement('button');
-
-    createButton.setAttribute('id', 'create-contact')
-
-    createButton.innerText = 'Create contact';
-    createButtonDiv.appendChild(createButton);
-    createButton.addEventListener('click', createContactFunction);
-
-    mainContainer.appendChild(appNameDiv);
-    mainContainer.appendChild(statusBarDiv);
-    mainContainer.appendChild(createButtonDiv);
-    mainContainer.appendChild(tableContainerDiv);
-
 }
 
 // This function processes the user's input and requests to store the user's data
@@ -354,7 +287,7 @@ function submitUserData(event, createUserInputRow, url) {
                     email: email.value
                 })
             },
-                'Creating a new User'
+                `Creating a new User '${email.value}'`
             )
             response.then(data => {
                 setStatusMessage(data.response);
@@ -376,21 +309,16 @@ function submitUserData(event, createUserInputRow, url) {
                     email: email.value
                 })
             },
-                'Updating a User'
+                `Updating user '${email.value}'`
             )
             response.then(data => {
                 setStatusMessage(data.response);
                 setTimeout(() => {
                     location.reload()
-                    // createContactButtonState.disabled = false;
                 }, 2000);
             });
         }
     }
-
-    // Submit the request to the server
-    // Remove the text fields and add the user details to the table
-    // Change the button to update and delete
 }
 
 // This function is used to cancel the user's inputs and returns to the previous users data.
@@ -441,4 +369,67 @@ function createContactFunction(event) {
 
 }
 
+// This function is the starting point of the application
+function loadMainPage(event) {
+    const mainContainer = document.querySelector('.main-container');
+
+    const appNameDiv = document.createElement('div');
+    const appNameText = document.createElement('p');
+
+    appNameText.innerText = "Contacts List Application";
+    appNameText.setAttribute('id', 'title')
+    appNameDiv.appendChild(appNameText);
+
+    // The empty user table is created here
+    const tableContainerDiv = createMainTable();
+
+    const userListPromise = fetchFromURL('/users', {
+        method: 'GET'
+    });
+    userListPromise.then(users => {
+        if (users.length == 0) {
+            const message = 'No User data is present'
+            setStatusMessage(message)
+        }
+        else if (users.length > 0) {
+            userCount = +users[users.length - 1][0];
+            setStatusMessage("Displaying all the User data.");
+            // Creating the heading of the table
+            const tableHead = document.querySelector('thead');
+            const createUserInputHeading = createUserInputHeadingFunction();
+            tableHead.appendChild(createUserInputHeading);
+            displayUsersInsideTableRow(users)
+            const tableBody = document.querySelector('tbody');
+
+            tableBody.addEventListener('click', (event) => {
+                if (event.target.tagName === 'BUTTON') {
+                    if (event.target.classList.contains('delete')) {
+                        deleteUser(event)
+                    }
+                    if (event.target.classList.contains('update')) {
+                        updateUser(event)
+                    }
+                }
+            })
+        }
+    }).catch(error => {
+        setStatusMessage(error.message)
+    })
+
+    // The create contact button is created here
+    const createButtonDiv = document.createElement('div');
+    const createButton = document.createElement('button');
+
+    createButton.setAttribute('id', 'create-contact')
+
+    createButton.innerText = 'Create contact';
+    createButtonDiv.appendChild(createButton);
+    createButton.addEventListener('click', createContactFunction);
+
+    mainContainer.appendChild(appNameDiv);
+    mainContainer.appendChild(statusBarDiv);
+    mainContainer.appendChild(createButtonDiv);
+    mainContainer.appendChild(tableContainerDiv);
+
+}
 
