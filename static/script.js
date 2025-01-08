@@ -154,7 +154,7 @@ function displayUsersInsideTableRow(userList) {
     }
 }
 
-// Creating the empty table containing the users and the user input
+// This function creates an empty table that will contain the users and the user's inputs
 function createMainTable() {
     const tableContainerDiv = document.createElement('div');
     const table = document.createElement('table');
@@ -167,6 +167,7 @@ function createMainTable() {
     return tableContainerDiv;
 }
 
+// This function calls the API endpoints and retrives the response
 async function fetchFromURL(url, request) {
     try {
         const response = await fetch(url, request);
@@ -177,6 +178,7 @@ async function fetchFromURL(url, request) {
     }
 }
 
+// This function deletes the user using the email address
 function deleteUser(event) {
     const button = event.target;
     const row = button.closest('tr');
@@ -201,14 +203,14 @@ function deleteUser(event) {
     })
 }
 
-
+// This function updates the user using the email address
 function updateUser(event) {
     const button = event.target;
     const row = button.closest('tr');
     const tableBody = row.parentElement;
 
     const createUserInputRow = createUserInputRowFunction();
-    const createContactButtonState = document.querySelector('#create-contact')
+    const createContactButtonState = document.querySelector('#create-contact');
 
     if (!createContactButtonState.disabled) {
         createContactButtonState.disabled = true;
@@ -221,7 +223,7 @@ function updateUser(event) {
     const userLastName = row.cells[2].textContent;
     const userEmail = row.cells[3].textContent;
 
-    const tableRowCells = createUserInputRow.cells
+    const tableRowCells = createUserInputRow.cells;
 
     tableRowCells[0].textContent = userID;
     tableRowCells[1].firstChild.value = userFirstName
@@ -236,13 +238,11 @@ function updateUser(event) {
     submitButton.addEventListener('click', (event) => submitUserData(event, createUserInputRow, '/update'));
     cancelButton.addEventListener('click', (event) => cancelSubmission(event,
         tableHead, tableBody, createContactButtonState, row, createUserInputRow));
-
-    row.remove()
-    tableBody.prepend(createUserInputRow)
-
+      
+    tableBody.replaceChild(createUserInputRow, row);
 }
 
-// Starting Point of the application
+// This function is the starting point of the application
 function loadMainPage(event) {
     const mainContainer = document.querySelector('.main-container');
 
@@ -288,22 +288,10 @@ function loadMainPage(event) {
                     }
                 }
             })
-
-            // updateButton.addEventListener('click', (event) => {
-            //     const currentUserRow = updateButton.parentElement;
-            //     console.log(currentUserRow)
-            // });
         }
     }).catch(err => {
         console.log(err.message)
     })
-
-
-
-    // updateButton.addEventListener('click', (event) => {
-    //     // const parentRow = updateButton.parentElement()
-    //     console.log('working!')
-    // });
 
     // The create contact button is created here
     const createButtonDiv = document.createElement('div');
@@ -322,6 +310,7 @@ function loadMainPage(event) {
 
 }
 
+// This function processes the user's input and requests to store the user's data
 function submitUserData(event, createUserInputRow, url) {
     const firstName = createUserInputRow.querySelector('.first-name');
     const lastName = createUserInputRow.querySelector('.last-name');
@@ -404,10 +393,10 @@ function submitUserData(event, createUserInputRow, url) {
     // Change the button to update and delete
 }
 
+// This function is used to cancel the user's inputs and returns to the previous users data.
 function cancelSubmission(event, tableHead, tableBody, createContactButtonState, row, createUserInputRow) {
     if (row) {
-        createUserInputRow.remove()
-        tableBody.prepend(row)
+        tableBody.replaceChild(row, createUserInputRow);
     }
     else {
         tableBody.removeChild(tableBody.firstChild);
