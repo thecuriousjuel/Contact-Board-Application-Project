@@ -172,7 +172,6 @@ function createMainTable() {
 async function fetchFromURL(url, request) {
     const response = await fetch(url, request);
     const data = await response.json();
-    console.log(data)
     if (data.status < 200 || data.status >= 400) {
         throw new Error(data.response)
     }
@@ -193,9 +192,7 @@ function deleteUser(event) {
         body: JSON.stringify({
             email: userEmail
         })
-    },
-        `Deleting user '${userEmail}'`
-    );
+    });
     response.then(res => {
         setStatusMessage(res.response)
         setTimeout(() => {
@@ -286,9 +283,8 @@ function submitUserData(event, createUserInputRow, url) {
                     lastName: lastName.value,
                     email: email.value
                 })
-            },
-                `Creating a new User '${email.value}'`
-            )
+            });
+
             response.then(data => {
                 setStatusMessage(data.response);
                 setTimeout(() => {
@@ -308,9 +304,8 @@ function submitUserData(event, createUserInputRow, url) {
                     lastName: lastName.value,
                     email: email.value
                 })
-            },
-                `Updating user '${email.value}'`
-            )
+            })
+
             response.then(data => {
                 setStatusMessage(data.response);
                 setTimeout(() => {

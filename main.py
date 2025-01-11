@@ -6,11 +6,13 @@ from operations import fetch_all_users
 from operations import create_user
 from operations import update_user
 from operations import delete_user
+from operations import prepare
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def main():
+    prepare()
     return render_template('index.html')
 
 

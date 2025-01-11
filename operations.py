@@ -1,13 +1,18 @@
 import os
 import sqlite3
 
-if not os.path.exists('database'):
-    os.makedirs('database')
-DATABASE = os.path.join('database', 'users.db')
+DB_FOLDER = 'database'
+DB_NAME = 'users.db'
+DATABASE = os.path.join(DB_FOLDER, DB_NAME)
 
 
-def create_user(first_name, last_name, email):
-    # Connect to the SQLite database (or create it if it doesn't exist)
+
+def prepare():
+    if not os.path.exists(DB_FOLDER):
+        os.makedirs(DB_FOLDER)
+    create_table()
+
+def create_table():
     conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
 
@@ -21,7 +26,19 @@ def create_user(first_name, last_name, email):
                 email TEXT NOT NULL UNIQUE
             )
         ''')
+        # Commit the transaction
+        conn.commit()
+    except Exception as exp:
+        print(f"An Error occured {str(exp)}")
+    finally:
+        conn.close()
 
+def create_user(first_name, last_name, email):
+    # Connect to the SQLite database (or create it if it doesn't exist)
+    conn = sqlite3.connect(database=DATABASE)
+    cursor = conn.cursor()
+
+    try:
         # Insert the user details into the users table
         cursor.execute('''
             INSERT INTO users (first_name, last_name, email)
@@ -152,6 +169,7 @@ def delete_user(email):
         'status': 200,
         'response': f"User '{email}' deleted successfully!"
     }
+
 
 
 if __name__ == '__main__':
