@@ -8,7 +8,7 @@
 
 ## To execute the application, refer the below commands
 
-$ source venv/Scripts/activate
-$ pip install -r requirements.txt
-$ python main.py
-$ pyinstaller main.spec
+- $ source venv/Scripts/activate
+- $ pip install -r requirements.txt
+- $ python main.py
+- $ pyinstaller main.spec
