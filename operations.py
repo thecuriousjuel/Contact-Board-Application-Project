@@ -5,8 +5,6 @@ DB_FOLDER = 'database'
 DB_NAME = 'users.db'
 DATABASE = os.path.join(DB_FOLDER, DB_NAME)
 
-
-
 def prepare():
     if not os.path.exists(DB_FOLDER):
         os.makedirs(DB_FOLDER)

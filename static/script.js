@@ -131,7 +131,7 @@ function createUserInputRowFunction() {
 
 }
 
-// 
+// This function displays the user details fetched from the server
 function displayUsersInsideTableRow(userList) {
     const userTableBody = document.querySelector('tbody');
     for (let i = userList.length - 1; i >= 0; i--) {
@@ -286,10 +286,9 @@ function submitUserData(event, createUserInputRow, url) {
             });
 
             response.then(data => {
-                setStatusMessage(data.response);
+                setStatusMessage(data.response)
                 setTimeout(() => {
                     location.reload()
-                    // createContactButtonState.disabled = false;
                 }, 2000);
             });
         }

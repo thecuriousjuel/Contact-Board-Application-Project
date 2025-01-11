@@ -1,3 +1,9 @@
+"""
+Importing all the modules and functions needed to perform all the operations.
+Operations include creating the database folder, database file, user table
+and all the CRUD operations on the User data.
+"""
+
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -8,21 +14,32 @@ from operations import update_user
 from operations import delete_user
 from operations import prepare
 
+# Creating the flask app
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def main():
+    """
+    This method creates/prepares the server environment for execution.
+    It returns the homepage of the application.
+    """
     prepare()
     return render_template('index.html')
 
 
 @app.route('/users', methods=['GET'])
 def get_users():
+    """
+    This method fetches all the user details like User first and last name and email.
+    """
     output = fetch_all_users()
     return jsonify(output), output['status']
 
 @app.route('/create', methods=['POST'])
 def create():
+    """
+    This method handles the request of storing the User details.
+    """
     first_name = request.get_json().get('firstName')
     last_name = request.get_json().get('lastName')
     email = request.get_json().get('email')
@@ -31,18 +48,24 @@ def create():
 
 @app.route('/delete', methods=['DELETE'])
 def delete():
+    """
+    This method handles the request of deleting the User details.
+    """
     email = request.get_json().get('email')
     output = delete_user(email)
     return jsonify({'response': output}), output['status']
 
 @app.route('/update', methods=['PUT'])
 def update():
+    """
+    This method handles the request of updating the User details.
+    """
     first_name = request.get_json().get('firstName')
     last_name = request.get_json().get('lastName')
     email = request.get_json().get('email')
     output = update_user(email, first_name, last_name)
     return jsonify({'response': output}), output['status']
 
-
+# Starting the application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
