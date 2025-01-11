@@ -373,7 +373,7 @@ function loadMainPage(event) {
     const appNameDiv = document.createElement('div');
     const appNameText = document.createElement('p');
 
-    appNameText.innerText = "Contacts List Application";
+    appNameText.innerText = "Contact Board Application";
     appNameText.setAttribute('id', 'title')
     appNameDiv.appendChild(appNameText);
 

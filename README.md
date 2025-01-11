@@ -1,4 +1,4 @@
-# contact-list-application
+# Contact Board Application
 
 ## Homepage
 
