@@ -1,16 +1,28 @@
+"""
+This python file contains all the methods for CRUD operations
+"""
+
+# Importing the required modules/libraries
 import os
 import sqlite3
 
+# Defining the database name and its folder
 DB_FOLDER = 'database'
 DB_NAME = 'users.db'
 DATABASE = os.path.join(DB_FOLDER, DB_NAME)
 
 def prepare():
+    """
+    This method is used to prepare the database environment.
+    """
     if not os.path.exists(DB_FOLDER):
         os.makedirs(DB_FOLDER)
     create_table()
 
 def create_table():
+    """
+    This method is used to create the table.
+    """
     conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
 
@@ -32,6 +44,9 @@ def create_table():
         conn.close()
 
 def create_user(first_name, last_name, email):
+    """
+    This method is used to create a new user
+    """
     # Connect to the SQLite database (or create it if it doesn't exist)
     conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
@@ -70,8 +85,10 @@ def create_user(first_name, last_name, email):
         'response': f"User '{email}' created successfully!"
     }
 
-
 def fetch_all_users():
+    """
+    This method is used to fetch all user details.
+    """
     # Connect to the SQLite database
     conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
@@ -97,8 +114,10 @@ def fetch_all_users():
         'response': [list(user) for user in users]
     }
 
-
 def update_user(email, first_name=None, last_name=None):
+    """
+    This method is used to update the user details using the email address.
+    """
     try:
         # Connect to the SQLite database
         conn = sqlite3.connect(database=DATABASE)
@@ -139,8 +158,10 @@ def update_user(email, first_name=None, last_name=None):
         'response': f"User '{email}' updated successfully!"
     }
 
-
 def delete_user(email):
+    """
+    This method is used to delete a user using the email address.
+    """
     # Connect to the SQLite database
     conn = sqlite3.connect(database=DATABASE)
     cursor = conn.cursor()
@@ -169,7 +190,9 @@ def delete_user(email):
     }
 
 
-
+# This below code was used to test all the above functions.
+# To test again, execute this file only.
+# $ python operations.py
 if __name__ == '__main__':
     print(create_user('John', 'Doe', 'john@doe.com'))
     print(create_user('John', 'Doe', 'john@doe.com'))

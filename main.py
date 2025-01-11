@@ -1,5 +1,5 @@
 """
-Importing all the modules and functions needed to perform all the operations.
+Importing all the functions needed to perform all the operations.
 Operations include creating the database folder, database file, user table
 and all the CRUD operations on the User data.
 """
