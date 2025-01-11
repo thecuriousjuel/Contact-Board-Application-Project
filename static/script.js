@@ -6,6 +6,7 @@ const tableHeading = ['#', 'First Name', 'Last Name', 'Email', 'Action'];
 // Stores the number of users created
 let userCount = 0;
 
+// Create the status bar
 const statusBarDiv = document.createElement('div');
 const statusMessage = document.createElement('p');
 statusBarDiv.classList.add('status-bar')
@@ -15,13 +16,14 @@ statusBarDiv.appendChild(statusMessage);
 // Event Listeners
 document.addEventListener('DOMContentLoaded', loadMainPage);
 
-
-// This function will replace space with hyphen and convert the string to lower case
+// This helper function will format the passed string. 
+// The string will be converted to lower case and any spaces will be replaces with hypen.
 function replaceSpaceWithhyphenAndConvertToLower(value) {
     return value.toLowerCase().replace(' ', '-');
 }
 
-// This function takes in a list of button values and creates a button element for each user
+// This function accepts a list of values, creates buttons with those values, 
+// and returns a table row element with those buttons as its children.
 function buttonDivFunction(listOfButtonValues) {
     let buttonDiv = document.createElement('td');
     listOfButtonValues.forEach(value => {
@@ -47,7 +49,7 @@ function addUpdateAndDeleteButtonFunction() {
     return actionRow;
 }
 
-// This function will create the action row consisting of different buttons
+// This function will create the action row consisting of different types of buttons
 function createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteButton = false) {
     let actionRow;
     if (addSubmitAndCancelButton) {
@@ -59,7 +61,7 @@ function createActionRow(addSubmitAndCancelButton = false, addUpdateAndDeleteBut
     return actionRow
 }
 
-// This function will set the status message
+// This function will set the status message on the home page
 function setStatusMessage(message) {
     // Trim whitespace from both ends
     let trimmed = message.trim();
@@ -69,7 +71,7 @@ function setStatusMessage(message) {
 
     // Capitalize the first letter
     let capitalized = noFullStops.charAt(0).toUpperCase() + noFullStops.slice(1);
-    console.log('capitalized', capitalized)
+
     statusMessage.innerText = capitalized;
 }
 
@@ -131,7 +133,7 @@ function createUserInputRowFunction() {
 
 }
 
-// This function displays the user details fetched from the server
+// This function displays the user's details fetched from the server in the table
 function displayUsersInsideTableRow(userList) {
     const userTableBody = document.querySelector('tbody');
     for (let i = userList.length - 1; i >= 0; i--) {
@@ -155,7 +157,7 @@ function displayUsersInsideTableRow(userList) {
     }
 }
 
-// This function creates an empty table that will contain the users and the user's inputs
+// This function creates the empty table that will contain the users and the user's inputs
 function createMainTable() {
     const tableContainerDiv = document.createElement('div');
     const table = document.createElement('table');
@@ -168,7 +170,8 @@ function createMainTable() {
     return tableContainerDiv;
 }
 
-// This function calls the API endpoints and retrives the response
+// This function calls the API endpoints and retrives the response,
+// formats it and returns to the calling function.
 async function fetchFromURL(url, request) {
     const response = await fetch(url, request);
     const data = await response.json();
@@ -315,7 +318,7 @@ function submitUserData(event, createUserInputRow, url) {
     }
 }
 
-// This function is used to cancel the user's inputs and returns to the previous users data.
+// This function is used to cancel the user's inputs and restore the previous user's data.
 function cancelSubmission(event, tableHead, tableBody, createContactButtonState, row, createUserInputRow) {
     if (row) {
         tableBody.replaceChild(row, createUserInputRow);

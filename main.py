@@ -3,7 +3,7 @@ Importing all the functions needed to perform all the operations.
 Operations include creating the database folder, database file, user table
 and all the CRUD operations on the User data.
 """
-
+import webbrowser
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -13,6 +13,9 @@ from operations import create_user
 from operations import update_user
 from operations import delete_user
 from operations import prepare
+
+LOCALHOST = "127.0.0.1"
+PORT = 5000
 
 # Creating the flask app
 app = Flask(__name__)
@@ -68,4 +71,6 @@ def update():
 
 # Starting the application
 if __name__ == '__main__':
-    app.run()
+    url = f"http://{LOCALHOST}:{PORT}/"
+    webbrowser.open_new_tab(url)
+    app.run(host=LOCALHOST, port=PORT)
