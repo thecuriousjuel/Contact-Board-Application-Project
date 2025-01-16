@@ -1,28 +1,11 @@
 # Contact Board Application
 
+The application takes the contact details from the user and stores them in the backend (database). This is coded in HTML, CSS, Javascript and Python. 
+
 ## Homepage
 
-![alt text](screenshots/homepage.png)
+![alt text](screenshots/home.png)
 
-## Create a new contact
-
-![alt text](screenshots/createContact1.png)
-
-![alt text](screenshots/createContact2.png)
-
-![alt text](screenshots/createContact3.png)
-
-## Update a contact
-
-![alt text](screenshots/updateContact1.png)
-
-![alt text](screenshots/updateContact2.png)
-
-![alt text](screenshots/updateContact3.png)
-
-## Delete a contact
-
-![alt text](screenshots/deleteContact.png)
 
 ## Requirement List
 1. The user should be able to enter their details i.e. First Name, Last Name and email into the system.
@@ -35,4 +18,3 @@
 - $ source venv/Scripts/activate
 - $ pip install -r requirements.txt
 - $ python main.py
-- $ pyinstaller main.spec
